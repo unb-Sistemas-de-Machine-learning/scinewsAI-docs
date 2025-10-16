@@ -20,7 +20,14 @@ plugins:
 site_name: scinewsAI-docs
 nav:
   - Home: index.md
-  - Arquitetura: architecture.md
+  - Engenharia de Requisitos:
+    - Artefatos: artifacts.md
+    - Requisitos de Produto: product_requirements.md
+    - Requisitos de ML/AI: ml_requirements.md
+    - User Stories: user_stories.md
+    - Backlog: backlog.md
+  - Modelagem:
+    - Arquitetura de Software: architecture.md
 
 theme:
   name: material
