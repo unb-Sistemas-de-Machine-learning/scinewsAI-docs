@@ -20,6 +20,7 @@ plugins:
 site_name: scinewsAI-docs
 nav:
   - Home: index.md
+  - Arquitetura: architecture.md
 
 theme:
   name: material
