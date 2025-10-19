@@ -19,3 +19,5 @@
 ![](assets/design_thinking_parking_lot.png)
 
 ## 5. Machine Learning Canvas
+
+![](assets/design_thinking_ml.png)
