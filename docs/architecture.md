@@ -8,6 +8,10 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 
 ![Diagrama Arquitetura](assets/architecture_diagram.jpeg)
 
+<div align="center">
+  <p><strong>Figura 1:</strong> Diagrama da Arquitetura. <em>Fonte: Bruno Martins, 2025</em></p>
+</div>
+
 ---
 
 ### **Módulo 1: Coleta de Dados**
@@ -107,3 +111,9 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 **Tecnologias utilizadas:**
 
 - n8n
+
+## Histórico de Versões
+
+| Versão | Data | Descrição | Autores | Revisores |
+| --- | --- | --- | --- | --- |
+| `1.0` | 16/10/2025 | Criação do documento de arquitetura | [Bruno Martins](https://github.com/brunomartins03) |  |
