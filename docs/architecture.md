@@ -70,6 +70,10 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 - SGBD: PostgreSQL com PGVector.
 - Object Storage: AWS S3, Google Cloud Storage, Cloudflare R2 (a decidir).
 
+<p align="center">
+  <img src="/assets/articles_table.svg" alt="Tabela SQL de Artigos" width="50%">
+</p>
+
 ---
 
 ### **Módulo 4: Apresentação (Frontend & API)**
