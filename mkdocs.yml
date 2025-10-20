@@ -29,6 +29,7 @@ nav:
   - Modelagem:
     - Arquitetura de Software: architecture.md
     - Engenharia de Dados: data_engineering.md
+  - Cronograma: schedule.md
 
 theme:
   name: material
