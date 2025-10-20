@@ -25,6 +25,7 @@ nav:
     - Requisitos de Produto: product_requirements.md
     - Requisitos de ML/AI: ml_requirements.md
     - User Stories: user_stories.md
+    - Backlog: backlog.md
   - Modelagem:
     - Arquitetura de Software: architecture.md
     - Engenharia de Dados: data_engineering.md
