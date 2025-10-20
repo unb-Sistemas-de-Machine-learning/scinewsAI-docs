@@ -70,9 +70,7 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 - SGBD: PostgreSQL com PGVector.
 - Object Storage: AWS S3, Google Cloud Storage, Cloudflare R2 (a decidir).
 
-<p align="center">
-  <img src="/scinewsAI-docs/assets/articles_table.svg" alt="Tabela SQL de Artigos" width="50%">
-</p>
+![Tabela SQL Artigos](./assets/articles_table.svg)
 
 <div align="center">
   <p><strong>Figura 2:</strong> Tabela SQL de Artigos. <em>Fonte: Gustavo Melo, 2025</em></p>
@@ -125,3 +123,4 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 | Versão | Data | Descrição | Autores | Revisores |
 | --- | --- | --- | --- | --- |
 | `1.0` | 16/10/2025 | Criação do documento de arquitetura | [Bruno Martins](https://github.com/brunomartins03) |  |
+| `1.1` | 19/10/2025 | Adicionada imagem de tabela SQL do banco | [Gustavo Melo](https://github.com/gusrberto) |  |
