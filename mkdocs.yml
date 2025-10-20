@@ -22,10 +22,8 @@ nav:
   - Home: index.md
   - Engenharia de Requisitos:
     - Artefatos: artifacts.md
-    - Requisitos de Produto: product_requirements.md
-    - Requisitos de ML/AI: ml_requirements.md
-    - User Stories: user_stories.md
     - Backlog: backlog.md
+    - Requisitos de ML/AI: ml_requirements.md
   - Modelagem:
     - Arquitetura de Software: architecture.md
 
