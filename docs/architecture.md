@@ -71,8 +71,12 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 - Object Storage: AWS S3, Google Cloud Storage, Cloudflare R2 (a decidir).
 
 <p align="center">
-  <img src="/assets/articles_table.svg" alt="Tabela SQL de Artigos" width="50%">
+  <img src="/scinewsAI-docs/assets/articles_table.svg" alt="Tabela SQL de Artigos" width="50%">
 </p>
+
+<div align="center">
+  <p><strong>Figura 2:</strong> Tabela SQL de Artigos. <em>Fonte: Gustavo Melo, 2025</em></p>
+</div>
 
 ---
 
