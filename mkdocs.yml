@@ -27,6 +27,7 @@ nav:
     - User Stories: user_stories.md
   - Modelagem:
     - Arquitetura de Software: architecture.md
+    - Engenharia de Dados: data_engineering.md
 
 theme:
   name: material
