@@ -6,7 +6,7 @@ O **SciNewsAI** coleta artigos científicos semanais de bases públicas, usa RAG
 
 A arquitetura será orientada a eventos e desacoplada, com o objetivo de promover a manutenção, escalabilidade e a substituição de componentes no futuro.
 
-![Diagrama Arquitetura](assets/architecture_diagram.jpeg)
+![Diagrama Arquitetura](assets/architecture_diagram_new.svg)
 
 <div align="center">
   <p><strong>Figura 1:</strong> Diagrama da Arquitetura. <em>Fonte: Bruno Martins, 2025</em></p>
