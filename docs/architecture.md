@@ -12,11 +12,15 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
   <p><strong>Figura 1:</strong> Diagrama da Arquitetura. <em>Fonte: Bruno Martins, 2025</em></p>
 </div>
 
+![Link do Diagrama](https://www.mermaidchart.com/d/6aaa3be8-6ad1-4831-99fb-5543e290c0ce)
+
 ---
 
 ### **Módulo 1: Coleta de Dados**
 
 > Agenda e executa a coleta de novos artigos científicos de fontes predefinidas.
+
+![Módulo 1](./assets/architecture_module_1.png)
 
 **Processo:**
 
@@ -37,6 +41,8 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 ### **Módulo 2: Processamento e Enriquecimento (ML/AI Core)**
 
 > Transforma o artigo científico bruto em um resumo acessível e um arquivo de áudio.
+
+![Módulo 2](./assets/architecture_module_2.png)
 
 **Processo:**
 
@@ -65,6 +71,8 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 
 > Seu objetivo é armazenar de forma eficiente e segura os dados brutos, os resultados processados e os arquivos de mídia.
 
+![Módulo 3](./assets/architecture_module_3.png)
+
 **Tecnologias utilizadas:**
 
 - SGBD: PostgreSQL com PGVector.
@@ -82,6 +90,8 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 
 > Expõe os artigos processados para a web através de um blog.
 
+![Módulo 4](./assets/architecture_module_4.png)
+
 **Processo:**
 
 1.  O Backend expõe endpoints.
@@ -98,6 +108,8 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 ### **Módulo 5: Distribuição e Notificação (Automação)**
 
 > Divulga o conteúdo e notifica usuários interessados.
+
+![Módulo 5](./assets/architecture_module_5.png)
 
 **Workflow de Divulgação em Redes Sociais (Agendado):**
 
@@ -124,3 +136,4 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 | --- | --- | --- | --- | --- |
 | `1.0` | 16/10/2025 | Criação do documento de arquitetura | [Bruno Martins](https://github.com/brunomartins03) |  |
 | `1.1` | 19/10/2025 | Adicionada imagem de tabela SQL do banco | [Gustavo Melo](https://github.com/gusrberto) |  |
+| `1.2` | 25/10/2025 | Adicionada diagramas dos módulos | [Gustavo Melo](https://github.com/gusrberto) |  |
