@@ -10,9 +10,8 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 
 <div align="center">
   <p><strong>Figura 1:</strong> Diagrama da Arquitetura. <em>Fonte: Bruno Martins, 2025</em></p>
+  <a href="https://www.mermaidchart.com/d/6aaa3be8-6ad1-4831-99fb-5543e290c0ce" target="_blank">Link do Diagrama</a>
 </div>
-
-![Link do Diagrama](https://www.mermaidchart.com/d/6aaa3be8-6ad1-4831-99fb-5543e290c0ce)
 
 ---
 
