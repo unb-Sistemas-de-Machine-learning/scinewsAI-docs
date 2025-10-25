@@ -29,7 +29,7 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 
 **Tecnologias utilizadas:**
 
-- Bibliotecas `requests`e `BeautifulSoup` para scraping básico. `Scrapy` para coletas mais complexas.
+- Bibliotecas `requests`e `feedparser` para scraping básico. `PyMuPDF (fitz)` para extrair textos dos PDFs.
 - Prefect, para orquestração de workflows.
 
 ---
