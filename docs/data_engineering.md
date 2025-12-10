@@ -27,7 +27,7 @@ Embora não utilizemos *feature engineering* clássico (como *one-hot encoding*)
 
 * **Tratamento de Outliers (Comprimento de Texto):** Artigos científicos variam drasticamente em tamanho. Para lidar com os limites de janela de contexto dos LLMs, aplicamos técnicas de **Chunking** (segmentação de texto) recursivo antes da vetorização.
 * **Robustez a Falhas (Missing Values):** O pipeline de coleta é resiliente. Artigos com metadados corrompidos ou PDFs inacessíveis são sinalizados com status de erro no banco, impedindo que quebrem o fluxo de processamento, mas permitindo retentativas futuras.
-* **Balanceamento de Relevância:** Como não há "classes" para balancear, nosso foco é o **balanceamento de ranking**. Utilizamos uma função logarítmica personalizada (vide seção de *Métricas*) para normalizar a disparidade entre autores "Superstars" e novos pesquisadores, garantindo uma curadoria justa.
+* **Balanceamento de Relevância:** Como não há "classes" para balancear, nosso foco é o **balanceamento de ranking**. Utilizamos uma função logarítmica personalizada (vide seção de [*Métricas*](https://github.com/unb-Sistemas-de-Machine-learning/scinewsAI/tree/main/paper_scraper#m%C3%A9trica-de-relev%C3%A2ncia-scoring)) para normalizar a disparidade entre autores "Superstars" e novos pesquisadores, garantindo uma curadoria justa.
 
 ## Histórico de Versões
 
