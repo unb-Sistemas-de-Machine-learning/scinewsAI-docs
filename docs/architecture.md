@@ -6,7 +6,7 @@ O **SciNewsAI** coleta artigos científicos semanais de bases públicas, usa RAG
 
 A arquitetura será orientada a eventos e desacoplada, com o objetivo de promover a manutenção, escalabilidade e a substituição de componentes no futuro.
 
-![Diagrama Arquitetura](assets/architecture_diagram_new.svg)
+![Diagrama Arquitetura](assets/architecture_diagram.svg)
 
 <div align="center">
   <p><strong>Figura 1:</strong> Diagrama da Arquitetura. <em>Fonte: Bruno Martins, 2025</em></p>
@@ -15,67 +15,73 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 
 ---
 
-### **Módulo 1: Coleta de Dados**
+### **Módulo 1: Coleta e Enriquecimento de Dados**
 
-> Agenda e executa a coleta de novos artigos científicos de fontes predefinidas.
+> Responsável pela busca de novos artigos, enriquecimento de metadados com métricas de impacto e persistência estruturada.
 
 ![Módulo 1](./assets/architecture_module_1.png)
 
 **Processo:**
 
-1. O orquestrador dispara um flow semanalmente.
-2. O flow executa um script Python que:
-    1. Consulta APIs e faz scraping para encontrar artigos publicados nos últimos 7 dias (arXiv, Google Scholar).
-    2. Filtra os artigos por relevância (ex: palavras-chave, citações iniciais) para evitar sobrecarga.
-    3. Para cada artigo selecionado, coleta metadados (título, autores, resumo, link para o PDF/página).
-    4. Envia uma mensagem para uma fila (e.g. RabbitMQ, Redis) com os metadados de cada artigo a ser processado.
+1.  **Execução do Pipeline:** O script principal (`main.py`) é acionado (manualmente ou via agendador).
+2.  **Busca Primária (Arxiv):** Utiliza a API do Arxiv para identificar papers publicados nos últimos 7 dias nas categorias de Inteligência Artificial (cs.AI, cs.LG, cs.CL).
+3.  **Enriquecimento de Metadados (Semantic Scholar):**
+    * Para cada paper encontrado, o sistema consulta a API do *Semantic Scholar*.
+    * Recupera dados profundos: contagem de citações do paper, H-Index dos autores e histórico de publicações.
+4.  **Cálculo de Relevância (Scoring):**
+    * Aplica a fórmula logarítmica (detalhada na seção de métricas) para gerar o `relevance_score`.
+    * Filtra e ordena os artigos priorizando o equilíbrio entre novidade e autoridade.
+5.  **Persistência e Download:**
+    * Salva os metadados tratados no banco de dados **PostgreSQL**.
+    * Realiza o download automático do PDF para a pasta local `articles_pdf/` para processamento futuro.
 
 **Tecnologias utilizadas:**
 
-- Bibliotecas `requests`e `feedparser` para scraping básico. `PyMuPDF (fitz)` para extrair textos dos PDFs.
-- Prefect, para orquestração de workflows.
+* **Python 3.12+**: Linguagem base.
+* **Feedparser**: Consumo do feed RSS/Atom do Arxiv.
+* **Requests & Tenacity**: Comunicação HTTP resiliente com a API do Semantic Scholar (com retry automático).
+* **SQLAlchemy**: ORM para gerenciamento e modelagem do banco de dados PostgreSQL.
 
 ---
 
 ### **Módulo 2: Processamento e Enriquecimento (ML/AI Core)**
 
-> Transforma o artigo científico bruto em um resumo acessível e um arquivo de áudio.
+> Transforma o artigo científico bruto (texto técnico) em um resumo acessível utilizando RAG (Retrieval-Augmented Generation).
 
 ![Módulo 2](./assets/architecture_module_2.png)
 
 **Processo:**
 
-1.  Um worker pega uma mensagem da fila contendo os metadados de um artigo.
-2.  Extração: O worker baixa o PDF do artigo e extrai todo o seu texto.
-3.  Chunking: O texto extraído é dividido em chunks menores e semanticamente coerentes.
-4.  Embedding e Indexing: Cada chunk de texto é transformado em um vetor numérico e armazenado em um vector store.
-5.  Simplificação via RAG:
-    1. O worker formula um prompt para o LLM.
-    2. Para encontrar o contexto, ele pega o resumo ou título do artigo, gera um embedding para essa query e busca os chunks mais similares no Vector Store.
-    3. Os chunks recuperados são inseridos no prompt.
-    4. O LLM gera o texto simplificado.
-6.  Geração de Áudio: O texto simplificado é enviado para a API do Gemini, que retorna um arquivo de áudio (ex: MP3).
+1.  **Monitoramento**: O serviço de processamento consulta o banco de dados em busca de artigos recém-inseridos que ainda não possuem resumo (`summary IS NULL`).
+2.  **Extração**: Carrega o arquivo PDF salvo localmente (ou via URL) e extrai o texto bruto.
+3.  **Chunking & Embedding**: 
+    - O texto é dividido em pedaços (chunks) semanticamente coerentes.
+    - Cada chunk é convertido em vetor e, opcionalmente, indexado (em memória ou no PGVector) para busca semântica.
+4.  **Geração via RAG**: 
+    - O sistema formula um prompt para o LLM.
+    - Recupera as partes mais relevantes do artigo para dar contexto.
+    - O LLM gera uma explicação simplificada e didática do paper.
+5.  **Atualização**:
+    - O resumo gerado é salvo de volta no registro do artigo no PostgreSQL.
 
 **Tecnologias utilizadas:**
 
-- Framework de IA/ML: Python com LangChain para orquestrar o pipeline de RAG.
-- Extração de Texto de PDF: `PyMuPDF` ou `pdfplumber`.
-- Embeddings: Um modelo `sentence-transformers` (open-source).
-- Vector Store (para RAG): ChromaDB ou PGVector.
--  LLM: Google Gemini.
+- **LangChain**: Orquestração do fluxo de IA.
+- **PyMuPDF / PDFPlumber**: Extração de texto.
+- **Sentence-Transformers**: Geração de embeddings locais.
+- **OpenAI API (GPT)**: Modelo de linguagem para geração do resumo.
 
 ---
 
 ### **Módulo 3: Armazenamento (Data Persistence)**
 
-> Seu objetivo é armazenar de forma eficiente e segura os dados brutos, os resultados processados e os arquivos de mídia.
+> Centraliza os dados brutos, metadados enriquecidos e vetores para busca semântica.
 
 ![Módulo 3](./assets/architecture_module_3.png)
 
 **Tecnologias utilizadas:**
 
-- SGBD: PostgreSQL com PGVector.
-- Object Storage: AWS S3, Google Cloud Storage, Cloudflare R2 (a decidir).
+- **SGBD**: PostgreSQL.
 
 ![Tabela SQL Artigos](./assets/articles_table.svg)
 
@@ -95,12 +101,12 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 
 1.  O Backend expõe endpoints.
 2.  O Frontend consome esses endpoints para renderizar as páginas do blog.
-3.  Cada página de artigo exibirá o título, o texto simplificado e um player de áudio embutido.
+3.  Cada página de artigo exibirá o título, o abstract original e o texto simplificado.
 
 **Tecnologias utilizadas:**
 
 - Backend: FastAPI.
-- Frontend: React/Next.js
+- Frontend: ReactJS.
 
 ---
 
@@ -136,3 +142,4 @@ A arquitetura será orientada a eventos e desacoplada, com o objetivo de promove
 | `1.0` | 16/10/2025 | Criação do documento de arquitetura | [Bruno Martins](https://github.com/brunomartins03) |  |
 | `1.1` | 19/10/2025 | Adicionada imagem de tabela SQL do banco | [Gustavo Melo](https://github.com/gusrberto) |  |
 | `1.2` | 25/10/2025 | Adicionada diagramas dos módulos | [Gustavo Melo](https://github.com/gusrberto) |  |
+| `1.3` | 10/12/2025 | Refatoração da arquitetura | [Gustavo Melo](https://github.com/gusrberto) |  |

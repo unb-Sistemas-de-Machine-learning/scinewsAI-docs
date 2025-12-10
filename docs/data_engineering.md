@@ -1,45 +1,37 @@
-# Arquitetura / Engenharia de Dados
+# Arquitetura e Engenharia de Dados
 
-## Coleta e Armazenamento dos Dados
+A arquitetura de dados do **ScinewsAI** foi projetada focando em robustez, rastreabilidade e autonomia. O sistema opera sob um paradigma de **ELT (Extract, Load, Transform)** modificado para fluxos de GenAI, onde a persistência dos dados brutos e enriquecidos ocorre no PostgreSQL antes da etapa de geração de conteúdo.
 
-**1**. A coleta é feita diretamente da fonte primária (arXiv), garantindo autenticidade. O armazenamento em um banco de dados PostgreSQL é ideal por ser robusto, confiável e ter excelente suporte para tipos de dados como `Text` e `ARRAY`, que são necessários para o seu schema.
+## 1. Estratégia de Coleta e Armazenamento
 
-**2**. O processo é projetado para ser 100% automatizado. Um orquestrador de tarefas (como **Celery** ou **Airflow** (ainda a decidir) com agendamento) executará o script de coleta semanalmente.
+A ingestão de dados segue uma abordagem híbrida para garantir a qualidade e a relevância das informações:
 
-## Aplicou alguma técnica de amostragem?
+* **Fonte Primária (Arxiv):** A coleta é realizada via API oficial do Arxiv, garantindo a autenticidade dos preprints. Buscamos integralmente os artigos das categorias selecionadas (`cs.AI`, `cs.LG`, `cs.CL`) publicados nos últimos 7 dias.
+* **Enriquecimento de Metadados:** Diferente de uma coleta passiva, o sistema enriquece os dados brutos consultando o **Semantic Scholar**. Isso nos permite agregar métricas de impacto (citações, H-Index) que não existem na fonte primária.
+* **Persistência (Single Source of Truth):** Utilizamos o **PostgreSQL** como repositório central. Sua capacidade de lidar com tipos complexos (`JSONB`, `ARRAY`) e a extensão **PGVector** eliminam a necessidade de bancos de dados vetoriais separados, simplificando a stack.
 
-**Não**. Para este caso de uso, nenhuma amostragem é necessária. O objetivo é processar todos os artigos de ciência da computação da última semana. O volume de publicações no arXiv é gerenciável e não exige amostragem para o MVP.
+## 2. Escopo e Amostragem de Dados
 
-## Precisou rotular? Como lidou com a rotulação dos dados? Que tipo de modelo esta usando para resolver esse problema?
+Para o escopo atual (MVP e Produção), **não aplicamos técnicas de amostragem**. O volume semanal de publicações em Ciência da Computação no Arxiv, embora alto, é computacionalmente gerenciável. Processamos 100% dos artigos recuperados para garantir que nenhuma descoberta relevante seja descartada precocemente. A filtragem ocorre *a posteriori*, através do nosso algoritmo de **Relevância (Scoring)**, e não na coleta.
 
-* **Não**, nenhuma rotulação de dados é necessária.
+## 3. Paradigma de Machine Learning (Generative AI)
 
-* **Como Lidamos**: Usamos um LLM pré-treinado (Google Gemini) em um paradigma zero-shot. Isso significa que o modelo já possui um conhecimento vasto sobre linguagem, ciência e a tarefa de resumir/simplificar, e podemos instruí-lo através de um prompt bem elaborado (a parte de "Geração" no RAG) sem precisar de exemplos rotulados.
+O núcleo de inteligência do projeto não se baseia em classificação tradicional, mas sim em **Geração de Texto (GenAI)**.
 
-* **Tipo de Modelo**: Modelo generativo de texto, especificamente para uma tarefa de simplificação e sumarização abstrativa do conteúdo.
+* **Abordagem Zero-Shot com RAG:** Não realizamos rotulação manual de dados nem treinamento supervisionado (*fine-tuning*). Utilizamos um LLM (OpenAI GPT) em um paradigma *Zero-Shot*, instruído via **Prompt Engineering**.
+* **Contexto via RAG:** Para contornar alucinações e garantir fidelidade técnica, implementamos uma arquitetura **RAG (Retrieval-Augmented Generation)**. O "conhecimento" do modelo não vem de seus pesos internos, mas dos vetores (embeddings) gerados a partir do texto extraído do PDF do artigo.
 
-## O projeto lida com balanceamento de classes?
+## 4. Engenharia de Features e Pré-processamento
 
-**Não**. O balanceamento de classes é uma técnica para problemas de classificação, onde há um número desigual de exemplos para cada classe. Nosso problema é de geração de texto, portanto, este conceito não se aplica.
+Embora não utilizemos *feature engineering* clássico (como *one-hot encoding*), aplicamos transformações críticas para o processamento de linguagem natural:
 
-## Devido a falta de dados, como os times lideram ou criaram data augmentation?
-
-* Este conceito também não se aplica diretamente aqui. O *data augmentation* é usado para aumentar artificialmente um conjunto de dados de treinamento quando ele é pequeno. Como não estamos treinando (ou mesmo fine-tuning no MVP), não precisamos de dados de treinamento e, consequentemente, de augmentation. O "dado" é o próprio artigo que queremos simplificar, e ele já existe.
-
-## Da parte de feature engineering, como vocês lidam com:
-
-* **Missing values**: O script de coleta deve ser robusto. Se a API do arXiv retornar um artigo sem um campo essencial (ex: `abstract`), podemos decidir pular o artigo ou registrá-lo com um status de `failed_preprocessing`.
-
-* **Outliers**: Em texto, um "outlier" poderia ser um artigo extremamente longo ou curto. O modelo de linguagem geralmente lida bem com variações de comprimento, mas pode haver limites de tokens na API. O `full_text` pode precisar ser truncado ou processado em partes (**chunks**) se exceder o limite de contexto do modelo.
-
-* **Enriquecimento dos dados**: Para o MVP, não é necessário. Futuramente, poderíamos enriquecer os dados buscando o número de citações do artigo, a afiliação dos autores, ou links para implementações no GitHub.
-
-* **Excluir variáveis inúteis**: Não há variáveis inúteis no schema; todas têm um propósito (para exibição, para o modelo ou para metadados).
-
-* **Normalização e padronização dos dados / One hot encoding**: Essas técnicas são para dados numéricos e categóricos usados em modelos de ML tradicionais. Elas não são aplicáveis aqui, pois a entrada do nosso modelo é texto bruto.
+* **Tratamento de Outliers (Comprimento de Texto):** Artigos científicos variam drasticamente em tamanho. Para lidar com os limites de janela de contexto dos LLMs, aplicamos técnicas de **Chunking** (segmentação de texto) recursivo antes da vetorização.
+* **Robustez a Falhas (Missing Values):** O pipeline de coleta é resiliente. Artigos com metadados corrompidos ou PDFs inacessíveis são sinalizados com status de erro no banco, impedindo que quebrem o fluxo de processamento, mas permitindo retentativas futuras.
+* **Balanceamento de Relevância:** Como não há "classes" para balancear, nosso foco é o **balanceamento de ranking**. Utilizamos uma função logarítmica personalizada (vide seção de *Métricas*) para normalizar a disparidade entre autores "Superstars" e novos pesquisadores, garantindo uma curadoria justa.
 
 ## Histórico de Versões
 
 | Versão | Data | Descrição | Autores | Revisores |
 | --- | --- | --- | --- | --- |
 | `1.0` | 19/10/2025 | Criação do documento de engenharia de dados | [Gustavo Melo](https://github.com/gusrberto) |  |
+| `1.1` | 10/12/2025 | Refatoração do módulo | [Gustavo Melo](https://github.com/gusrberto) |  |
